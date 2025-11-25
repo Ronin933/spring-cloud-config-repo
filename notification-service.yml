@@ -1,0 +1,53 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: notification-service
+  cloud:
+    function:
+      definition: handleUserEvents;handleOrderEvents
+    stream:
+      bindings:
+        handleUserEvents-in-0:
+          destination: user-events-topic
+          group: notification-service-group
+          consumer:
+            max-attempts: 3
+            back-off-initial-interval: 1000
+            back-off-multiplier: 2.0
+            back-off-max-interval: 10000
+        handleOrderEvents-in-0:
+          destination: order-events-topic
+          group: notification-service-group
+          consumer:
+            max-attempts: 3
+            back-off-initial-interval: 1000
+            back-off-multiplier: 2.0
+            back-off-max-interval: 10000
+      rabbit:
+        bindings:
+          handleUserEvents-in-0:
+            consumer:
+              auto-bind-dlq: true
+              republish-to-dlq: true
+              dead-letter-exchange: user-events-topic.dlx
+              dead-letter-routing-key: user-events-topic.dlq
+          handleOrderEvents-in-0:
+            consumer:
+              auto-bind-dlq: true
+              republish-to-dlq: true
+              dead-letter-exchange: order-events-topic.dlx
+              dead-letter-routing-key: order-events-topic.dlq
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,bindings
+
+info:
+  app:
+    name: Notification Service
+    description: Event processing and notification service
+    version: 1.0.0

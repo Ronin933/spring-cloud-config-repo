@@ -1,0 +1,35 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: order-service
+  cloud:
+    stream:
+      bindings:
+        order-events-out-0:
+          destination: order-events-topic
+          group: notification-service-group
+          content-type: application/json
+      rabbit:
+        bindings:
+          order-events-out-0:
+            producer:
+              delivery-mode: persistent
+              confirm-ack-timeout: 5000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+logging:
+  level:
+    com.example.order: DEBUG
+
+info:
+  app:
+    name: Order Service
+    description: Microservice for order management
+    version: 1.0.0

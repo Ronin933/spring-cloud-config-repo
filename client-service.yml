@@ -1,0 +1,51 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: client-service
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 10000
+        loggerLevel: basic
+  circuitbreaker:
+    enabled: true
+  compression:
+    request:
+      enabled: true
+    response:
+      enabled: true
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      user-service:
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+  timelimiter:
+    instances:
+      user-service:
+        timeout-duration: 5s
+  retry:
+    instances:
+      user-service:
+        max-attempts: 3
+        wait-duration: 1s
+
+ribbon:
+  ConnectTimeout: 5000
+  ReadTimeout: 60000
+  OkToRetryOnAllOperations: true
+
+info:
+  app:
+    name: Client Service
+    description: Client service with Feign clients
+    version: 1.0.0
